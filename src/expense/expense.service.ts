@@ -147,6 +147,7 @@ export class ExpenseService {
   async getRecent(): Promise<any> {
     const expenseRecent = await this.expenseRepository
       .createQueryBuilder('expense')
+      .leftJoinAndSelect('expense.category', 'category')
       .orderBy('expense.createDate', 'DESC')
       .limit(5)
       .getMany();
@@ -168,7 +169,7 @@ export class ExpenseService {
       })),
     ].sort((a, b) => {
       return (
-        new Date(b .createDate).getTime() - new Date(a.createDate).getTime()
+        new Date(b.createDate).getTime() - new Date(a.createDate).getTime()
       );
     });
 
