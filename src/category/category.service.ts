@@ -4,15 +4,29 @@ import { Category } from './entities/category.entity';
 import { Repository } from 'typeorm';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import { User } from 'src/user/entities/user.entity';
 @Injectable()
 export class CategoryService {
   constructor(
     @InjectRepository(Category)
     private categoryRepository: Repository<Category>,
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
   ) {}
 
-  create(createCategoryDto: CreateCategoryDto): Promise<Category> {
-    const category = this.categoryRepository.create(createCategoryDto);
+  async create(
+    createCategoryDto: CreateCategoryDto,
+    userId: string,
+  ): Promise<Category> {
+    const user = await this.userRepository
+      .createQueryBuilder('user')
+      .where('user.id = :userId', { userId })
+      .getOne();
+
+    const category = this.categoryRepository.create({
+      ...createCategoryDto,
+      user,
+    });
     return this.categoryRepository.save(category);
   }
 
@@ -33,8 +47,11 @@ export class CategoryService {
     return this.categoryRepository.save(category);
   }
 
-  findAll(): Promise<Category[]> {
-    return this.categoryRepository.find({ relations: ['expenses'] });
+  findAll(userId: string): Promise<Category[]> {
+    return this.categoryRepository.find({
+      where: { user: { id: userId } },
+      // relations: ['expenses', 'incomes', 'user'],
+    });
   }
 
   delete(id: string) {

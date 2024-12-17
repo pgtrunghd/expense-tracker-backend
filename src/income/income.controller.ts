@@ -15,6 +15,7 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { CreateIncomeDto } from './dto/create-income.dto';
 import { PaginationDto } from 'src/pagination/pagination.dto';
 import { UpdateIncomeDto } from './dto/update-income.dto';
+import { User } from 'src/user/user.decorator';
 
 @Controller('income')
 export class IncomeController {
@@ -28,8 +29,8 @@ export class IncomeController {
 
   @UseGuards(JwtAuthGuard)
   @Get()
-  findAll(@Query() pagination: PaginationDto) {
-    return this.incomeService.findAll(pagination);
+  findAll(@Query() pagination: PaginationDto, @User('userId') userId: string) {
+    return this.incomeService.findAll(pagination, userId);
   }
 
   @UseGuards(JwtAuthGuard)

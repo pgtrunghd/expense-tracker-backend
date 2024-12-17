@@ -41,15 +41,36 @@ export class BalanceService {
     return res;
   }
 
-  async getBalance() {
+  async getBalance(userId: string) {
+    const expensesQuery = await this.expenseRepository
+      .createQueryBuilder('expense')
+      .select('sum(expense.amount) as total_expense')
+      .where('expense.userId = :userId', { userId })
+      .getRawOne()
+      .then((result) => result?.total_expense ?? 0);
+
+    const incomeQuery = await this.incomeRepository
+      .createQueryBuilder('income')
+      .select('sum(income.amount) as total_income')
+      .where('income.userId = :userId', { userId })
+      .getRawOne()
+      .then((result) => result?.total_income ?? 0);
+
+    return {
+      balance: Number(incomeQuery) - Number(expensesQuery),
+    };
+  }
+
+  async getOverview(date: string) {
     const firstDay = new Date(
-      new Date().getFullYear(),
-      new Date().getMonth(),
+      new Date(date).getFullYear(),
+      new Date(date).getMonth(),
       1,
     );
+
     const lastDay = new Date(
-      new Date().getFullYear(),
-      new Date().getMonth() + 1,
+      new Date(date).getFullYear(),
+      new Date(date).getMonth() + 1,
       0,
       23,
       59,
@@ -58,14 +79,14 @@ export class BalanceService {
     );
 
     const firstDayPrevMonth = new Date(
-      new Date().getFullYear(),
-      new Date().getMonth() - 1,
+      new Date(date).getFullYear(),
+      new Date(date).getMonth() - 1,
       1,
     );
 
     const lastDayPrevMonth = new Date(
-      new Date().getFullYear(),
-      new Date().getMonth(),
+      new Date(date).getFullYear(),
+      new Date(date).getMonth(),
       0,
       23,
       59,
@@ -73,32 +94,19 @@ export class BalanceService {
       999,
     );
 
-    const expensesQuery = await this.expenseRepository
-      .createQueryBuilder('expense')
-      .select('sum(expense.amount) as total_expense')
-      .getRawOne()
-      .then((result) => result?.total_expense ?? 0);
-
-    const incomeQuery = await this.incomeRepository
-      .createQueryBuilder('income')
-      .select('sum(income.amount) as total_income')
-      .getRawOne()
-      .then((result) => result?.total_income ?? 0);
-
     const totalExpenseMonthQuery = await this.expenseQuery(firstDay, lastDay);
     const totalIncomeMonthQuery = await this.incomeQuery(firstDay, lastDay);
 
-    const totalExpensePrevMonthQuery = await this.incomeQuery(
+    const totalExpensePrevMonthQuery = await this.expenseQuery(
       firstDayPrevMonth,
       lastDayPrevMonth,
     );
-    const totalIncomePrevMonthQuery = await this.expenseQuery(
+    const totalIncomePrevMonthQuery = await this.incomeQuery(
       firstDayPrevMonth,
       lastDayPrevMonth,
     );
 
     return {
-      balance: Number(incomeQuery) - Number(expensesQuery),
       totalExpense: Number(totalExpenseMonthQuery),
       totalIncome: Number(totalIncomeMonthQuery),
       totalSaving:

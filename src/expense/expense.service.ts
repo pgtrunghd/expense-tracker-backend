@@ -7,6 +7,7 @@ import { Repository } from 'typeorm';
 import { Category } from 'src/category/entities/category.entity';
 import { PaginationDto } from 'src/pagination/pagination.dto';
 import { Income } from 'src/income/entity/income.entity';
+import { User } from 'src/user/entities/user.entity';
 
 @Injectable()
 export class ExpenseService {
@@ -17,6 +18,8 @@ export class ExpenseService {
     private categoryRepository: Repository<Category>,
     @InjectRepository(Income)
     private incomeRepository: Repository<Income>,
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
   ) {}
 
   private getStartOfWeek(date: Date): Date {
@@ -30,19 +33,29 @@ export class ExpenseService {
     return new Date(startOfWeek.setDate(startOfWeek.getDate() + 6));
   }
 
-  async create(createExpenseDto: CreateExpenseDto): Promise<Expense> {
+  async create(
+    createExpenseDto: CreateExpenseDto,
+    userId: string,
+  ): Promise<Expense> {
     const { categoryId, ...expenseData } = createExpenseDto;
     const category = await this.categoryRepository.findOne({
       where: { id: categoryId },
+    });
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
     });
 
     if (!category) {
       throw new NotFoundException('Category not found');
     }
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
 
     const expense = this.expenseRepository.create({
       ...expenseData,
       category,
+      user,
     });
     return this.expenseRepository.save(expense);
   }
@@ -73,12 +86,13 @@ export class ExpenseService {
     return this.expenseRepository.save(expense);
   }
 
-  async findAll(pagination: PaginationDto): Promise<any> {
+  async findAll(pagination: PaginationDto, userId: string): Promise<any> {
     const { page, take } = pagination;
     const [data, total] = await this.expenseRepository.findAndCount({
+      where: { user: { id: userId } },
       skip: (page - 1) * take,
       take,
-      relations: ['category'],
+      relations: ['category', 'user'],
       order: { createDate: 'desc' },
     });
 
@@ -144,16 +158,21 @@ export class ExpenseService {
     return await query.getMany();
   }
 
-  async getRecent(): Promise<any> {
+  async getRecent(userId: string): Promise<any> {
     const expenseRecent = await this.expenseRepository
       .createQueryBuilder('expense')
       .leftJoinAndSelect('expense.category', 'category')
+      .leftJoinAndSelect('expense.user', 'user')
+      .where('expense.user.id = :userId', { userId })
       .orderBy('expense.createDate', 'DESC')
       .limit(5)
       .getMany();
 
     const incomeRecent = await this.incomeRepository
       .createQueryBuilder('income')
+      .leftJoinAndSelect('income.category', 'category')
+      .leftJoinAndSelect('income.user', 'user')
+      .where('income.user.id = :userId', { userId })
       .orderBy('income.createDate', 'DESC')
       .limit(5)
       .getMany();

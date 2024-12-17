@@ -13,20 +13,20 @@ import { UserModule } from 'src/user/user.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User]),
-    PassportModule,
-    UserModule,
     // Config for access_token
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
-        secret: configService.get<string>('JWT_SECRET_KEY'),
+        secret: process.env.JWT_SECRET_KEY,
         signOptions: {
-          expiresIn: configService.get<string>('JWT_EXPIRES_IN') || '1m',
+          expiresIn: process.env.JWT_EXPIRE_IN,
         },
       }),
     }),
+    TypeOrmModule.forFeature([User]),
+    PassportModule,
+    UserModule,
   ],
   providers: [AuthService, LocalStrategy, JwtStrategy, UserService],
   controllers: [AuthController],

@@ -38,8 +38,4 @@ export class UserService {
       refreshToken,
     });
   }
-
-  remove(id: number) {
-    return `This action removes a #${id} user`;
-  }
 }

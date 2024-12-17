@@ -8,6 +8,8 @@ import {
   Delete,
   UseGuards,
   Query,
+  Session,
+  Request,
 } from '@nestjs/common';
 import { ExpenseService } from './expense.service';
 import { CreateExpenseDto } from './dto/create-expense.dto';
@@ -15,6 +17,7 @@ import { UpdateExpenseDto } from './dto/update-expense.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { PaginationDto } from 'src/pagination/pagination.dto';
 import { Expense } from './entities/expense.entity';
+import { User } from 'src/user/user.decorator';
 
 @Controller('expense')
 export class ExpenseController {
@@ -22,8 +25,11 @@ export class ExpenseController {
 
   @UseGuards(JwtAuthGuard)
   @Post()
-  create(@Body() createExpenseDto: CreateExpenseDto) {
-    return this.expenseService.create(createExpenseDto);
+  create(
+    @Body() createExpenseDto: CreateExpenseDto,
+    @User('userId') userId: string,
+  ) {
+    return this.expenseService.create(createExpenseDto, userId);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -37,8 +43,8 @@ export class ExpenseController {
 
   @UseGuards(JwtAuthGuard)
   @Get()
-  findAll(@Query() pagination: PaginationDto) {
-    return this.expenseService.findAll(pagination);
+  findAll(@Query() pagination: PaginationDto, @User('userId') userId: string) {
+    return this.expenseService.findAll(pagination, userId);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -71,7 +77,7 @@ export class ExpenseController {
 
   @UseGuards(JwtAuthGuard)
   @Get('recent-activity')
-  async getRecent() {
-    return this.expenseService.getRecent();
+  async getRecent(@User('userId') userId: string) {
+    return this.expenseService.getRecent(userId);
   }
 }

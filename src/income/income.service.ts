@@ -33,9 +33,10 @@ export class IncomeService {
     return this.incomeRepository.delete(id);
   }
 
-  async findAll(pagination: PaginationDto): Promise<any> {
+  async findAll(pagination: PaginationDto, userId: string): Promise<any> {
     const { page, take } = pagination;
     const [data, total] = await this.incomeRepository.findAndCount({
+      where: { user: { id: userId } },
       skip: (page - 1) * take,
       take,
       order: { createDate: 'DESC' },

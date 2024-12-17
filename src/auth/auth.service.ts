@@ -1,9 +1,8 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import { CreateUserDto } from 'src/user/dto/create-user.dto';
-import { UserService } from 'src/user/user.service';
-import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcrypt';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class AuthService {
@@ -22,20 +21,22 @@ export class AuthService {
     return null;
   }
 
-  async login(user: { username: string; id: string; refreshToken: string }) {
+  async login(
+    user: { username: string; id: string; refreshToken: string },
+    session: Record<string, any>,
+  ) {
     const payload = { username: user.username, sub: user.id };
     const access_token = this.jwtService.sign(payload);
     const refresh_token = this.jwtService.sign(payload, {
-      secret: this.configService.get<string>(
-        process.env.JWT_REFRESH_SECRET_KEY,
-      ),
-      expiresIn:
-        this.configService.get<string>('JWT_REFRESH_EXPIRE_IN') || '15m',
+      secret: process.env.JWT_REFRESH_SECRET_KEY,
+      expiresIn: process.env.JWT_REFRESH_EXPIRE_IN || '15m',
     });
 
     const encryptRefreshToken = await bcrypt.hash(refresh_token, 10);
 
     await this.userService.updateRefreshToken(user.id, encryptRefreshToken);
+
+    session.userId = user.id;
 
     return {
       access_token,

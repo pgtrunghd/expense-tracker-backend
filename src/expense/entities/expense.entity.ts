@@ -1,4 +1,5 @@
 import { Category } from 'src/category/entities/category.entity';
+import { User } from 'src/user/entities/user.entity';
 import {
   Column,
   CreateDateColumn,
@@ -23,4 +24,7 @@ export class Expense {
 
   @ManyToOne(() => Category, (category) => category.expenses)
   category: Category;
+
+  @ManyToOne(() => User, (user) => user.expenses)
+  user: User;
 }

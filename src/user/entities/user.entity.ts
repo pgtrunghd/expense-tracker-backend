@@ -1,4 +1,7 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Category } from 'src/category/entities/category.entity';
+import { Expense } from 'src/expense/entities/expense.entity';
+import { Income } from 'src/income/entity/income.entity';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class User {
@@ -13,4 +16,13 @@ export class User {
 
   @Column({ nullable: true })
   refreshToken: string;
+
+  @OneToMany(() => Expense, (expense) => expense.user)
+  expenses: Expense[];
+
+  @OneToMany(() => Income, (income) => income.user)
+  incomes: Income[];
+
+  @OneToMany(() => Category, (category) => category.user)
+  categories: Category[];
 }

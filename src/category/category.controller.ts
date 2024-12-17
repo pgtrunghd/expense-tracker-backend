@@ -14,6 +14,7 @@ import { Category } from './entities/category.entity';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import { User } from 'src/user/user.decorator';
 
 @Controller('category')
 export class CategoryController {
@@ -21,8 +22,11 @@ export class CategoryController {
 
   @UseGuards(JwtAuthGuard)
   @Post()
-  create(@Body() createCategoryDto: CreateCategoryDto): Promise<Category> {
-    return this.categoryService.create(createCategoryDto);
+  create(
+    @Body() createCategoryDto: CreateCategoryDto,
+    @User('userId') userId: string,
+  ): Promise<Category> {
+    return this.categoryService.create(createCategoryDto, userId);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -35,15 +39,15 @@ export class CategoryController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get()
-  findAll(): Promise<Category[]> {
-    return this.categoryService.findAll();
-  }
-
-  @UseGuards(JwtAuthGuard)
   @Delete(':id')
   delete(@Param('id') id: string) {
     return this.categoryService.delete(id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get()
+  findAll(@User('userId') userId: string): Promise<Category[]> {
+    return this.categoryService.findAll(userId);
   }
 
   @UseGuards(JwtAuthGuard)
