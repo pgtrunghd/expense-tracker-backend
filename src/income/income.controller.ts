@@ -23,8 +23,11 @@ export class IncomeController {
 
   @UseGuards(JwtAuthGuard)
   @Post()
-  create(@Body() createIncomeDto: CreateIncomeDto) {
-    return this.incomeService.create(createIncomeDto);
+  create(
+    @Body() createIncomeDto: CreateIncomeDto,
+    @User('userId') userId: string,
+  ) {
+    return this.incomeService.create(createIncomeDto, userId);
   }
 
   @UseGuards(JwtAuthGuard)

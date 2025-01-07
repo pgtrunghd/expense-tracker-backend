@@ -11,5 +11,9 @@ export class CreateIncomeDto {
 
   @IsString()
   @IsNotEmpty()
+  categoryId: string;
+
+  @IsString()
+  @IsNotEmpty()
   createDate: string;
 }

@@ -132,18 +132,30 @@ export class ExpenseService {
     return await query.getMany();
   }
 
-  async getExpensesByWeek(date: Date): Promise<Expense[]> {
-    const startOfWeekDate = this.getStartOfWeek(date);
-    const endOfWeekDate = this.getEndOfWeek(date);
+  async getExpensesByMonth(date: string, userId: string): Promise<Expense[]> {
+    const firstDay = new Date(
+      new Date(date).getFullYear(),
+      new Date(date).getMonth(),
+      1,
+    );
+
+    const lastDay = new Date(
+      new Date(date).getFullYear(),
+      new Date(date).getMonth() + 1,
+      0,
+      23,
+      59,
+      59,
+      999,
+    );
 
     const query = this.expenseRepository
       .createQueryBuilder('expense')
-      .select('expense.amount')
-      .addSelect('expense.createDate')
       .leftJoinAndSelect('expense.category', 'category')
-      .where('expense.createDate BETWEEN :startOfWeekDate AND :endOfWeekDate', {
-        startOfWeekDate,
-        endOfWeekDate,
+      .where('expense.userId = :userId', { userId })
+      .andWhere('expense.createDate between :firstDay and :lastDay', {
+        firstDay,
+        lastDay,
       })
       .orderBy('expense.createDate', 'ASC');
 

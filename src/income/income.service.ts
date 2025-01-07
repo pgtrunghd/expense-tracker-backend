@@ -5,16 +5,30 @@ import { Repository } from 'typeorm';
 import { CreateIncomeDto } from './dto/create-income.dto';
 import { PaginationDto } from 'src/pagination/pagination.dto';
 import { UpdateIncomeDto } from './dto/update-income.dto';
+import { User } from 'src/user/entities/user.entity';
 
 @Injectable()
 export class IncomeService {
   constructor(
     @InjectRepository(Income)
     private incomeRepository: Repository<Income>,
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
   ) {}
 
-  create(createIncomeDto: CreateIncomeDto): Promise<Income> {
-    const income = this.incomeRepository.create(createIncomeDto);
+  async create(
+    createIncomeDto: CreateIncomeDto,
+    userId: string,
+  ): Promise<Income> {
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const income = this.incomeRepository.create({ ...createIncomeDto, user });
     return this.incomeRepository.save(income);
   }
 

@@ -62,11 +62,12 @@ export class ExpenseController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get('by-week')
-  async getExpensesByWeek(@Query('date') date: string) {
-    const parseDate = new Date(date);
-
-    return this.expenseService.getExpensesByWeek(parseDate);
+  @Get('by-month')
+  async getExpensesByMonth(
+    @Query('date') date: string,
+    @User('userId') userId: string,
+  ) {
+    return this.expenseService.getExpensesByMonth(date, userId);
   }
 
   @UseGuards(JwtAuthGuard)

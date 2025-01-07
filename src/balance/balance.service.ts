@@ -13,11 +13,12 @@ export class BalanceService {
     private incomeRepository: Repository<Income>,
   ) {}
 
-  async incomeQuery(firstDay: Date, lastDay: Date) {
+  async incomeQuery(firstDay: Date, lastDay: Date, userId: string) {
     const res = await this.incomeRepository
       .createQueryBuilder('income')
       .select('sum(income.amount) as total_income')
-      .where('income.createDate between :firstDay and :lastDay', {
+      .where('income.userId = :userId', { userId })
+      .andWhere('income.createDate between :firstDay and :lastDay', {
         firstDay,
         lastDay,
       })
@@ -27,11 +28,12 @@ export class BalanceService {
     return res;
   }
 
-  async expenseQuery(firstDay: Date, lastDay: Date) {
+  async expenseQuery(firstDay: Date, lastDay: Date, userId: string) {
     const res = await this.expenseRepository
       .createQueryBuilder('expense')
       .select('sum(expense.amount) as total_expense')
-      .where('expense.createDate between :firstDay and :lastDay', {
+      .where('expense.userId = :userId', { userId })
+      .andWhere('expense.createDate between :firstDay and :lastDay', {
         firstDay,
         lastDay,
       })
@@ -61,7 +63,7 @@ export class BalanceService {
     };
   }
 
-  async getOverview(date: string) {
+  async getOverview(date: string, userId: string) {
     const firstDay = new Date(
       new Date(date).getFullYear(),
       new Date(date).getMonth(),
@@ -94,16 +96,26 @@ export class BalanceService {
       999,
     );
 
-    const totalExpenseMonthQuery = await this.expenseQuery(firstDay, lastDay);
-    const totalIncomeMonthQuery = await this.incomeQuery(firstDay, lastDay);
+    const totalExpenseMonthQuery = await this.expenseQuery(
+      firstDay,
+      lastDay,
+      userId,
+    );
+    const totalIncomeMonthQuery = await this.incomeQuery(
+      firstDay,
+      lastDay,
+      userId,
+    );
 
     const totalExpensePrevMonthQuery = await this.expenseQuery(
       firstDayPrevMonth,
       lastDayPrevMonth,
+      userId,
     );
     const totalIncomePrevMonthQuery = await this.incomeQuery(
       firstDayPrevMonth,
       lastDayPrevMonth,
+      userId,
     );
 
     return {

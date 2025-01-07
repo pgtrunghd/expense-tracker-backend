@@ -15,7 +15,10 @@ export class BalanceController {
 
   @UseGuards(JwtAuthGuard)
   @Get('overview')
-  getOverview(@Query('date') date: string) {
-    return this.balanceService.getOverview(date ?? new Date().toISOString());
+  getOverview(@Query('date') date: string, @User('userId') userId: string) {
+    return this.balanceService.getOverview(
+      date ?? new Date().toISOString(),
+      userId,
+    );
   }
 }
