@@ -20,6 +20,9 @@ export class Category {
   @Column({ nullable: true })
   color: string;
 
+  @Column({ nullable: true })
+  icon: string;
+
   @OneToMany(() => Expense, (expense) => expense.category)
   expenses: Expense[];
 

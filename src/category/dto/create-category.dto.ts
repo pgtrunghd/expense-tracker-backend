@@ -8,4 +8,8 @@ export class CreateCategoryDto {
   @IsString()
   @IsNotEmpty()
   color: string;
+
+  @IsString()
+  @IsNotEmpty()
+  icon: string;
 }
