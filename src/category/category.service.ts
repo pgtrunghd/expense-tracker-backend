@@ -50,7 +50,7 @@ export class CategoryService {
   findAll(userId: string): Promise<Category[]> {
     return this.categoryRepository.find({
       where: { user: { id: userId } },
-      // relations: ['expenses', 'incomes', 'user'],
+      relations: ['expenses'],
     });
   }
 
