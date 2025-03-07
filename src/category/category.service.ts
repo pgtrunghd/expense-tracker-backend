@@ -47,11 +47,44 @@ export class CategoryService {
     return this.categoryRepository.save(category);
   }
 
-  findAll(userId: string): Promise<Category[]> {
-    return this.categoryRepository.find({
-      where: { user: { id: userId } },
-      relations: ['expenses'],
-    });
+  async findAll(userId: string): Promise<Category[]> {
+    const query = this.categoryRepository
+      .createQueryBuilder('category')
+      .leftJoinAndSelect('category.expenses', 'expense')
+      .leftJoinAndSelect('category.incomes', 'income')
+      .where('category.user.id = :userId', { userId });
+
+    return await query.getMany();
+  }
+
+  async getTopExpenses(date: string, userId: string): Promise<Category[]> {
+    const firstDay = new Date(
+      new Date(date).getFullYear(),
+      new Date(date).getMonth(),
+      1,
+    );
+
+    const lastDay = new Date(
+      new Date(date).getFullYear(),
+      new Date(date).getMonth() + 1,
+      0,
+      23,
+      59,
+      59,
+      999,
+    );
+
+    const query = this.categoryRepository
+      .createQueryBuilder('category')
+      .leftJoinAndSelect('category.expenses', 'expense')
+      .where('category.user.id = :userId', { userId })
+      .where('expense.createDate BETWEEN :firstDay AND :lastDay', {
+        firstDay,
+        lastDay,
+      })
+      .limit(5);
+
+    return await query.getMany();
   }
 
   delete(id: string) {

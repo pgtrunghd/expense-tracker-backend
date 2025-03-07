@@ -170,14 +170,33 @@ export class ExpenseService {
     return await query.getMany();
   }
 
-  async getRecent(userId: string): Promise<any> {
+  async getRecent(date: string, userId: string): Promise<any> {
+    const firstDay = new Date(
+      new Date(date).getFullYear(),
+      new Date(date).getMonth(),
+      1,
+    );
+
+    const lastDay = new Date(
+      new Date(date).getFullYear(),
+      new Date(date).getMonth() + 1,
+      0,
+      23,
+      59,
+      59,
+      999,
+    );
+
     const expenseRecent = await this.expenseRepository
       .createQueryBuilder('expense')
       .leftJoinAndSelect('expense.category', 'category')
       .leftJoinAndSelect('expense.user', 'user')
       .where('expense.user.id = :userId', { userId })
+      .andWhere('expense.createDate BETWEEN :firstDay AND :lastDay', {
+        firstDay,
+        lastDay,
+      })
       .orderBy('expense.createDate', 'DESC')
-      .limit(5)
       .getMany();
 
     const incomeRecent = await this.incomeRepository
@@ -185,8 +204,11 @@ export class ExpenseService {
       .leftJoinAndSelect('income.category', 'category')
       .leftJoinAndSelect('income.user', 'user')
       .where('income.user.id = :userId', { userId })
+      .andWhere('income.createDate BETWEEN :firstDay AND :lastDay', {
+        firstDay,
+        lastDay,
+      })
       .orderBy('income.createDate', 'DESC')
-      .limit(5)
       .getMany();
 
     const recent = [

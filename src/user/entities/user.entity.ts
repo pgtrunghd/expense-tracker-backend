@@ -1,3 +1,4 @@
+import { Budget } from 'src/budget/entities/budget.entity';
 import { Category } from 'src/category/entities/category.entity';
 import { Expense } from 'src/expense/entities/expense.entity';
 import { Income } from 'src/income/entity/income.entity';
@@ -25,4 +26,7 @@ export class User {
 
   @OneToMany(() => Category, (category) => category.user)
   categories: Category[];
+
+  @OneToMany(() => Budget, (budget) => budget.user)
+  budgets: Budget[];
 }

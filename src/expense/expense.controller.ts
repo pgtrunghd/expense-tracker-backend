@@ -78,7 +78,7 @@ export class ExpenseController {
 
   @UseGuards(JwtAuthGuard)
   @Get('recent-activity')
-  async getRecent(@User('userId') userId: string) {
-    return this.expenseService.getRecent(userId);
+  async getRecent(@Query('date') date: string, @User('userId') userId: string) {
+    return this.expenseService.getRecent(date, userId);
   }
 }

@@ -51,6 +51,12 @@ export class CategoryController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Get('top-expenses')
+  async getTopExpenses(@Query('date') date: string, @User('userId') userId: string) {
+    return this.categoryService.getTopExpenses(date, userId);
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Get('by-day')
   async getCategoriesByDay(@Query('date') date: string): Promise<Category[]> {
     const parseDate = new Date(date);

@@ -9,6 +9,7 @@ import { CategoryModule } from './category/category.module';
 import { ExpenseModule } from './expense/expense.module';
 import { IncomeModule } from './income/income.module';
 import { UserModule } from './user/user.module';
+import { BudgetModule } from './budget/budget.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { UserModule } from './user/user.module';
     CategoryModule,
     IncomeModule,
     BalanceModule,
+    BudgetModule,
   ],
   controllers: [AppController],
   providers: [AppService],
