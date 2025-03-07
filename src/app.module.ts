@@ -13,8 +13,6 @@ import { BudgetModule } from './budget/budget.module';
 
 @Module({
   imports: [
-    UserModule,
-    AuthModule,
     ConfigModule.forRoot({
       isGlobal: true,
     }),
@@ -28,6 +26,8 @@ import { BudgetModule } from './budget/budget.module';
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: true,
     }),
+    UserModule,
+    AuthModule,
     ExpenseModule,
     CategoryModule,
     IncomeModule,

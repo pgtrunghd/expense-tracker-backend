@@ -14,6 +14,6 @@ export class Budget {
   @Column()
   endDate: Date;
 
-  @ManyToOne(() => User, (user) => user.budgets)
-  user: User;
+  // @ManyToOne(() => User, (user) => user.budgets)
+  // user: User;
 }

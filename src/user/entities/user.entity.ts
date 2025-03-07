@@ -27,6 +27,6 @@ export class User {
   @OneToMany(() => Category, (category) => category.user)
   categories: Category[];
 
-  @OneToMany(() => Budget, (budget) => budget.user)
-  budgets: Budget[];
+  // @OneToMany(() => Budget, (budget) => budget.user)
+  // budgets: Budget[];
 }
