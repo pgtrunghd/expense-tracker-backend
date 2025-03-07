@@ -5,7 +5,7 @@ import { BalanceService } from './balance.service';
 import { BalanceController } from './balance.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Expense } from 'src/expense/entities/expense.entity';
-import { Income } from 'src/income/entity/income.entity';
+import { Income } from 'src/income/entities/income.entity';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Expense, Income])],

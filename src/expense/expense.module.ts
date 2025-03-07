@@ -4,7 +4,7 @@ import { ExpenseController } from './expense.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Expense } from './entities/expense.entity';
 import { Category } from 'src/category/entities/category.entity';
-import { Income } from 'src/income/entity/income.entity';
+import { Income } from 'src/income/entities/income.entity';
 import { User } from 'src/user/entities/user.entity';
 
 @Module({

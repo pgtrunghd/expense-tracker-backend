@@ -6,7 +6,7 @@ import { Expense } from './entities/expense.entity';
 import { Repository } from 'typeorm';
 import { Category } from 'src/category/entities/category.entity';
 import { PaginationDto } from 'src/pagination/pagination.dto';
-import { Income } from 'src/income/entity/income.entity';
+import { Income } from 'src/income/entities/income.entity';
 import { User } from 'src/user/entities/user.entity';
 
 @Injectable()
