@@ -1,12 +1,27 @@
+import { Category } from 'src/category/entities/category.entity';
 import { User } from 'src/user/entities/user.entity';
-import { Column, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
+@Entity()
 export class Budget {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column('decimal')
+  @Column()
   amount: number;
+
+  @ManyToOne(() => User, (user) => user.budgets)
+  user: User;
+
+  @ManyToOne(() => Category, (category) => category.budgets)
+  category: Category;
 
   @Column()
   startDate: Date;
@@ -14,6 +29,15 @@ export class Budget {
   @Column()
   endDate: Date;
 
-  // @ManyToOne(() => User, (user) => user.budgets)
-  // user: User;
+  @Column({ type: 'boolean', default: false })
+  isRecurring: boolean;
+
+  @CreateDateColumn()
+  createAt: Date;
+
+  @UpdateDateColumn()
+  updateAt: Date;
+
+  @Column()
+  currentSpending: number;
 }

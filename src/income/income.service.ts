@@ -38,7 +38,11 @@ export class IncomeService {
       throw new NotFoundException('User not found');
     }
 
-    const income = this.incomeRepository.create({ ...incomeData, category, user });
+    const income = this.incomeRepository.create({
+      ...incomeData,
+      category,
+      user,
+    });
     return this.incomeRepository.save(income);
   }
 

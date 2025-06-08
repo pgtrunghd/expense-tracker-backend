@@ -22,17 +22,6 @@ export class ExpenseService {
     private userRepository: Repository<User>,
   ) {}
 
-  private getStartOfWeek(date: Date): Date {
-    const day = date.getDay();
-    const diff = date.getDate() - day + (day === 0 ? -6 : 1);
-    return new Date(date.setDate(diff));
-  }
-
-  private getEndOfWeek(date: Date): Date {
-    const startOfWeek = this.getStartOfWeek(date);
-    return new Date(startOfWeek.setDate(startOfWeek.getDate() + 6));
-  }
-
   async create(
     createExpenseDto: CreateExpenseDto,
     userId: string,

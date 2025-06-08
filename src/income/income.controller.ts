@@ -6,16 +6,15 @@ import {
   Param,
   Patch,
   Post,
-  Put,
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { IncomeService } from './income.service';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
-import { CreateIncomeDto } from './dto/create-income.dto';
 import { PaginationDto } from 'src/pagination/pagination.dto';
-import { UpdateIncomeDto } from './dto/update-income.dto';
 import { User } from 'src/user/user.decorator';
+import { CreateIncomeDto } from './dto/create-income.dto';
+import { UpdateIncomeDto } from './dto/update-income.dto';
+import { IncomeService } from './income.service';
 
 @Controller('income')
 export class IncomeController {

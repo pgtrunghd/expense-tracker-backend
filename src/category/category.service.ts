@@ -91,18 +91,18 @@ export class CategoryService {
     return this.categoryRepository.delete(id);
   }
 
-  async getCategoriesByDay(date: Date): Promise<Category[]> {
-    const startDay = new Date(date.setHours(0, 0, 0, 0));
-    const endDay = new Date(date.setHours(23, 59, 59, 999));
-    const query = this.categoryRepository
-      .createQueryBuilder('category')
-      .leftJoinAndSelect('category.expenses', 'expense')
-      .where('expense.createDate BETWEEN :startDay AND :endDay', {
-        startDay,
-        endDay,
-      })
-      .orderBy('category.name', 'ASC');
+  // async getCategoriesByDay(date: Date): Promise<Category[]> {
+  //   const startDay = new Date(date.setHours(0, 0, 0, 0));
+  //   const endDay = new Date(date.setHours(23, 59, 59, 999));
+  //   const query = this.categoryRepository
+  //     .createQueryBuilder('category')
+  //     .leftJoinAndSelect('category.expenses', 'expense')
+  //     .where('expense.createDate BETWEEN :startDay AND :endDay', {
+  //       startDay,
+  //       endDay,
+  //     })
+  //     .orderBy('category.name', 'ASC');
 
-    return await query.getMany();
-  }
+  //   return await query.getMany();
+  // }
 }
