@@ -15,6 +15,7 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { User } from 'src/user/user.decorator';
+import { PaginationDto } from 'src/common/pagination/pagination.dto';
 
 @Controller('category')
 export class CategoryController {
@@ -46,8 +47,8 @@ export class CategoryController {
 
   @UseGuards(JwtAuthGuard)
   @Get()
-  findAll(@User('userId') userId: string): Promise<Category[]> {
-    return this.categoryService.findAll(userId);
+  findAll(@Query() pagination: PaginationDto, @User('userId') userId: string) {
+    return this.categoryService.findAll(pagination, userId);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -58,12 +59,4 @@ export class CategoryController {
   ) {
     return this.categoryService.getTopExpenses(date, userId);
   }
-
-  // @UseGuards(JwtAuthGuard)
-  // @Get('by-day')
-  // async getCategoriesByDay(@Query('date') date: string): Promise<Category[]> {
-  //   const parseDate = new Date(date);
-
-  //   return this.categoryService.getCategoriesByDay(parseDate);
-  // }
 }

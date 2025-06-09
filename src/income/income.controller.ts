@@ -10,7 +10,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
-import { PaginationDto } from 'src/pagination/pagination.dto';
+import { PaginationDto } from 'src/common/pagination/pagination.dto';
 import { User } from 'src/user/user.decorator';
 import { CreateIncomeDto } from './dto/create-income.dto';
 import { UpdateIncomeDto } from './dto/update-income.dto';

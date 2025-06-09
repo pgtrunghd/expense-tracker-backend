@@ -14,7 +14,7 @@ import { CreateBudgetDto } from './dto/create-budget.dto';
 import { UpdateBudgetDto } from './dto/update-budget.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { User } from 'src/user/user.decorator';
-import { PaginationDto } from 'src/pagination/pagination.dto';
+import { PaginationDto } from 'src/common/pagination/pagination.dto';
 
 @Controller('budget')
 export class BudgetController {

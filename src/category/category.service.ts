@@ -5,6 +5,11 @@ import { Repository } from 'typeorm';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { User } from 'src/user/entities/user.entity';
+import { PaginationDto } from 'src/common/pagination/pagination.dto';
+import {
+  createPaginationResult,
+  PaginationResult,
+} from 'src/common/pagination/pagination.util';
 @Injectable()
 export class CategoryService {
   constructor(
@@ -47,14 +52,22 @@ export class CategoryService {
     return this.categoryRepository.save(category);
   }
 
-  async findAll(userId: string): Promise<Category[]> {
+  async findAll(
+    pagination: PaginationDto,
+    userId: string,
+  ): Promise<PaginationResult<Category>> {
+    const { page, take, skip } = pagination;
     const query = this.categoryRepository
       .createQueryBuilder('category')
       .leftJoinAndSelect('category.expenses', 'expense')
       .leftJoinAndSelect('category.incomes', 'income')
-      .where('category.user.id = :userId', { userId });
+      .where('category.user.id = :userId', { userId })
+      .skip(skip)
+      .take(take);
 
-    return await query.getMany();
+    const [data, total] = await query.getManyAndCount();
+
+    return createPaginationResult(data, page, total, take);
   }
 
   async getTopExpenses(date: string, userId: string): Promise<Category[]> {

@@ -5,9 +5,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Expense } from './entities/expense.entity';
 import { Repository } from 'typeorm';
 import { Category } from 'src/category/entities/category.entity';
-import { PaginationDto } from 'src/pagination/pagination.dto';
+import { PaginationDto } from 'src/common/pagination/pagination.dto';
 import { Income } from 'src/income/entities/income.entity';
 import { User } from 'src/user/entities/user.entity';
+import { createPaginationResult } from 'src/common/pagination/pagination.util';
 
 @Injectable()
 export class ExpenseService {
@@ -76,30 +77,16 @@ export class ExpenseService {
   }
 
   async findAll(pagination: PaginationDto, userId: string): Promise<any> {
-    const { page, take } = pagination;
+    const { page, take, skip } = pagination;
     const [data, total] = await this.expenseRepository.findAndCount({
       where: { user: { id: userId } },
-      skip: (page - 1) * take,
+      skip,
       take,
       relations: ['category', 'user'],
       order: { createDate: 'desc' },
     });
 
-    const pageCount = Math.ceil(total / take);
-    const hasPreviousPage = page > 1;
-    const hasNextPage = page < pageCount;
-
-    return {
-      data,
-      meta: {
-        page,
-        take,
-        itemCount: total,
-        pageCount,
-        hasPreviousPage,
-        hasNextPage,
-      },
-    };
+    return createPaginationResult(data, page, total, take);
   }
 
   delete(id: string) {

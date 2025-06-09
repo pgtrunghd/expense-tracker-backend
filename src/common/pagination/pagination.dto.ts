@@ -13,4 +13,8 @@ export class PaginationDto {
   @IsInt()
   @Min(1)
   take?: number = 5;
+
+  get skip(): number {
+    return (this.page - 1) * this.take;
+  }
 }

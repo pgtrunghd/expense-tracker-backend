@@ -15,7 +15,7 @@ import { ExpenseService } from './expense.service';
 import { CreateExpenseDto } from './dto/create-expense.dto';
 import { UpdateExpenseDto } from './dto/update-expense.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
-import { PaginationDto } from 'src/pagination/pagination.dto';
+import { PaginationDto } from 'src/common/pagination/pagination.dto';
 import { Expense } from './entities/expense.entity';
 import { User } from 'src/user/user.decorator';
 

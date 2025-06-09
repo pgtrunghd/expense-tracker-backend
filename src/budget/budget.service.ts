@@ -6,8 +6,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Category } from 'src/category/entities/category.entity';
 import { User } from 'src/user/entities/user.entity';
-import { PaginationDto } from 'src/pagination/pagination.dto';
+import { PaginationDto } from 'src/common/pagination/pagination.dto';
 import { Expense } from 'src/expense/entities/expense.entity';
+import { createPaginationResult } from 'src/common/pagination/pagination.util';
 
 @Injectable()
 export class BudgetService {
@@ -64,39 +65,16 @@ export class BudgetService {
   }
 
   async findAll(pagination: PaginationDto, userId: string): Promise<any> {
-    const { page, take } = pagination;
+    const { page, take, skip } = pagination;
     const [data, total] = await this.budgetRepository.findAndCount({
       where: { user: { id: userId } },
-      skip: (page - 1) * take,
+      skip,
       take,
       relations: ['category'],
       order: { createAt: 'DESC' },
     });
 
-    // const totalSpending = await this.expenseRepository
-    //   .createQueryBuilder('expense')
-    //   .select('sum(expense.amount)', 'sum')
-    //   .where('expense.userId = :userId', {
-    //     userId,
-    //   }).andWhere('expense.createDate between :start adn :end', {
-    //     start:
-    //   })
-
-    const pageCount = Math.ceil(total / take);
-    const hasPreviousPage = page > 1;
-    const hasNextPage = page < pageCount;
-
-    return {
-      data,
-      meta: {
-        page,
-        take,
-        itemCount: total,
-        pageCount,
-        hasPreviousPage,
-        hasNextPage,
-      },
-    };
+    return createPaginationResult(data, page, total, take);
   }
 
   // findOne(id: number, userId: string) {

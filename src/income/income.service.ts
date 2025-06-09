@@ -3,10 +3,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Income } from './entities/income.entity';
 import { Repository } from 'typeorm';
 import { CreateIncomeDto } from './dto/create-income.dto';
-import { PaginationDto } from 'src/pagination/pagination.dto';
+import { PaginationDto } from 'src/common/pagination/pagination.dto';
 import { UpdateIncomeDto } from './dto/update-income.dto';
 import { User } from 'src/user/entities/user.entity';
 import { Category } from 'src/category/entities/category.entity';
+import { createPaginationResult } from 'src/common/pagination/pagination.util';
 
 @Injectable()
 export class IncomeService {
@@ -62,28 +63,14 @@ export class IncomeService {
   }
 
   async findAll(pagination: PaginationDto, userId: string): Promise<any> {
-    const { page, take } = pagination;
+    const { page, take, skip } = pagination;
     const [data, total] = await this.incomeRepository.findAndCount({
       where: { user: { id: userId } },
-      skip: (page - 1) * take,
+      skip,
       take,
       order: { createDate: 'DESC' },
     });
 
-    const pageCount = Math.ceil(total / take);
-    const hasPreviousPage = page > 1;
-    const hasNextPage = page < pageCount;
-
-    return {
-      data,
-      meta: {
-        page,
-        take,
-        pageCount,
-        hasPreviousPage,
-        hasNextPage,
-        itemCount: total,
-      },
-    };
+    return createPaginationResult(data, page, total, take);
   }
 }
