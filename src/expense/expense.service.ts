@@ -175,7 +175,7 @@ export class ExpenseService {
       'Server timezone:',
       Intl.DateTimeFormat().resolvedOptions().timeZone,
     );
-    console.log('Current time:', getVietnamDate(new Date()));
+    console.log('Current time:', getVietnamDate(new Date()).toString());
 
     const rawQuery = `
     (
