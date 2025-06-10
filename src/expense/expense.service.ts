@@ -9,6 +9,7 @@ import { PaginationDto } from 'src/common/pagination/pagination.dto';
 import { Income } from 'src/income/entities/income.entity';
 import { User } from 'src/user/entities/user.entity';
 import { createPaginationResult } from 'src/common/pagination/pagination.util';
+import { getVietnamDate } from 'src/common/utils/timezone';
 
 @Injectable()
 export class ExpenseService {
@@ -154,27 +155,27 @@ export class ExpenseService {
   ): Promise<any> {
     const { page, take, skip } = pagination;
 
-    const firstDay = new Date(
-      new Date(date).getFullYear(),
-      new Date(date).getMonth(),
-      1,
+    const firstDay = getVietnamDate(
+      new Date(new Date(date).getFullYear(), new Date(date).getMonth(), 1),
     );
 
-    const lastDay = new Date(
-      new Date(date).getFullYear(),
-      new Date(date).getMonth() + 1,
-      0,
-      23,
-      59,
-      59,
-      999,
+    const lastDay = getVietnamDate(
+      new Date(
+        new Date(date).getFullYear(),
+        new Date(date).getMonth() + 1,
+        0,
+        23,
+        59,
+        59,
+        999,
+      ),
     );
 
     console.log(
       'Server timezone:',
       Intl.DateTimeFormat().resolvedOptions().timeZone,
     );
-    console.log('Current time:', new Date().toString());
+    console.log('Current time:', getVietnamDate(new Date()).toString());
 
     const rawQuery = `
     (
