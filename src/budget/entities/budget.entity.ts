@@ -23,19 +23,19 @@ export class Budget {
   @ManyToOne(() => Category, (category) => category.budgets)
   category: Category;
 
-  @Column()
+  @Column({ type: 'timestamptz' })
   startDate: Date;
 
-  @Column()
+  @Column({ type: 'timestamptz' })
   endDate: Date;
 
   @Column({ type: 'boolean', default: false })
   isRecurring: boolean;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   createAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ type: 'timestamptz' })
   updateAt: Date;
 
   @Column()

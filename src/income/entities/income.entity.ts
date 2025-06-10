@@ -13,7 +13,7 @@ export class Income {
   @Column()
   amount: number;
 
-  @Column()
+  @Column({ type: 'timestamptz' })
   createDate: Date;
 
   @ManyToOne(() => Category, (category) => category.incomes)
