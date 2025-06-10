@@ -170,6 +170,12 @@ export class ExpenseService {
       999,
     );
 
+    console.log(
+      'Server timezone:',
+      Intl.DateTimeFormat().resolvedOptions().timeZone,
+    );
+    console.log('Current time:', new Date().toString());
+
     const rawQuery = `
     (
       SELECT 
