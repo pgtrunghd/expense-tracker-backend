@@ -1,3 +1,4 @@
+import { DateTime } from 'luxon';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateExpenseDto } from './dto/create-expense.dto';
 import { UpdateExpenseDto } from './dto/update-expense.dto';
@@ -9,7 +10,6 @@ import { PaginationDto } from 'src/common/pagination/pagination.dto';
 import { Income } from 'src/income/entities/income.entity';
 import { User } from 'src/user/entities/user.entity';
 import { createPaginationResult } from 'src/common/pagination/pagination.util';
-import { getVietnamDate } from 'src/common/utils/timezone';
 
 @Injectable()
 export class ExpenseService {
@@ -155,27 +155,29 @@ export class ExpenseService {
   ): Promise<any> {
     const { page, take, skip } = pagination;
 
-    const firstDay = getVietnamDate(
-      new Date(new Date(date).getFullYear(), new Date(date).getMonth(), 1),
-    );
+    // const firstDay = new Date(
+    //   new Date(date).getFullYear(),
+    //   new Date(date).getMonth(),
+    //   1,
+    // );
 
-    const lastDay = getVietnamDate(
-      new Date(
-        new Date(date).getFullYear(),
-        new Date(date).getMonth() + 1,
-        0,
-        23,
-        59,
-        59,
-        999,
-      ),
-    );
+    // const lastDay = new Date(
+    //   new Date(date).getFullYear(),
+    //   new Date(date).getMonth() + 1,
+    //   0,
+    //   23,
+    //   59,
+    //   59,
+    //   999,
+    // );
 
-    console.log(
-      'Server timezone:',
-      Intl.DateTimeFormat().resolvedOptions().timeZone,
-    );
-    console.log('Current time:', getVietnamDate(new Date()).toString());
+    const startOfMonth = DateTime.fromISO(date, { zone: 'Asia/Ho_Chi_Minh' })
+      .startOf('month')
+      .toJSDate();
+
+    const endOfMonth = DateTime.fromISO(date, { zone: 'Asia/Ho_Chi_Minh' })
+      .endOf('month')
+      .toJSDate();
 
     const rawQuery = `
     (
@@ -219,15 +221,15 @@ export class ExpenseService {
 
     const data = await this.dataSource.query(rawQuery, [
       userId,
-      firstDay,
-      lastDay,
+      startOfMonth,
+      endOfMonth,
       take,
       skip,
     ]);
     const totalResult = await this.dataSource.query(rawTotalQuery, [
       userId,
-      firstDay,
-      lastDay,
+      startOfMonth,
+      endOfMonth,
     ]);
     const total = parseInt(totalResult[0].count, 10);
 
