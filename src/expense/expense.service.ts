@@ -3,7 +3,7 @@ import { CreateExpenseDto } from './dto/create-expense.dto';
 import { UpdateExpenseDto } from './dto/update-expense.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Expense } from './entities/expense.entity';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { Category } from 'src/category/entities/category.entity';
 import { PaginationDto } from 'src/common/pagination/pagination.dto';
 import { Income } from 'src/income/entities/income.entity';
@@ -21,6 +21,7 @@ export class ExpenseService {
     private incomeRepository: Repository<Income>,
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    private dataSource: DataSource,
   ) {}
 
   async create(
@@ -146,7 +147,13 @@ export class ExpenseService {
     return await query.getMany();
   }
 
-  async getRecent(date: string, userId: string): Promise<any> {
+  async getRecent(
+    date: string,
+    userId: string,
+    pagination: PaginationDto,
+  ): Promise<any> {
+    const { page, take, skip } = pagination;
+
     const firstDay = new Date(
       new Date(date).getFullYear(),
       new Date(date).getMonth(),
@@ -163,45 +170,60 @@ export class ExpenseService {
       999,
     );
 
-    const expenseRecent = await this.expenseRepository
-      .createQueryBuilder('expense')
-      .leftJoinAndSelect('expense.category', 'category')
-      .leftJoinAndSelect('expense.user', 'user')
-      .where('expense.user.id = :userId', { userId })
-      .andWhere('expense.createDate BETWEEN :firstDay AND :lastDay', {
-        firstDay,
-        lastDay,
-      })
-      .orderBy('expense.createDate', 'DESC')
-      .getMany();
+    const rawQuery = `
+    (
+      SELECT 
+        e.id,
+        e.amount,
+        e."createDate",
+        'expense' as type,
+        row_to_json(c) as category
+      FROM expense e
+      JOIN category c ON c.id = e."categoryId"
+      WHERE e."userId" = $1
+        AND e."createDate" BETWEEN $2 AND $3
+    )
+    UNION ALL
+    (
+      SELECT 
+        i.id,
+        i.amount,
+        i."createDate",
+        'income' as type,
+        row_to_json(c) as category
+      FROM income i
+      JOIN category c ON c.id = i."categoryId"
+      WHERE i."userId" = $1
+        AND i."createDate" BETWEEN $2 AND $3
+    )
+    ORDER BY "createDate" DESC
+    LIMIT $4 OFFSET $5
+  `;
 
-    const incomeRecent = await this.incomeRepository
-      .createQueryBuilder('income')
-      .leftJoinAndSelect('income.category', 'category')
-      .leftJoinAndSelect('income.user', 'user')
-      .where('income.user.id = :userId', { userId })
-      .andWhere('income.createDate BETWEEN :firstDay AND :lastDay', {
-        firstDay,
-        lastDay,
-      })
-      .orderBy('income.createDate', 'DESC')
-      .getMany();
+    const rawTotalQuery = `
+    SELECT COUNT(*) FROM (
+      SELECT e.id FROM expense e 
+        WHERE e."userId" = $1 AND e."createDate" BETWEEN $2 AND $3
+      UNION ALL
+      SELECT i.id FROM income i 
+        WHERE i."userId" = $1 AND i."createDate" BETWEEN $2 AND $3
+    ) as combined;
+  `;
 
-    const recent = [
-      ...expenseRecent.map((item) => ({
-        ...item,
-        type: 'expense',
-      })),
-      ...incomeRecent.map((item) => ({
-        ...item,
-        type: 'income',
-      })),
-    ].sort((a, b) => {
-      return (
-        new Date(b.createDate).getTime() - new Date(a.createDate).getTime()
-      );
-    });
+    const data = await this.dataSource.query(rawQuery, [
+      userId,
+      firstDay,
+      lastDay,
+      take,
+      skip,
+    ]);
+    const totalResult = await this.dataSource.query(rawTotalQuery, [
+      userId,
+      firstDay,
+      lastDay,
+    ]);
+    const total = parseInt(totalResult[0].count, 10);
 
-    return recent;
+    return createPaginationResult(data, page, total, take);
   }
 }
