@@ -7,5 +7,5 @@ export const getVietnamDate = (input?: Date | string): Date => {
       })
     : DateTime.utc();
 
-  return dt.setZone('Asia/Ho_Chi_Minh').toJSDate();
+  return dt.setZone('Asia/Saigon').toJSDate();
 };
