@@ -32,6 +32,9 @@ export class Budget {
   @Column({ type: 'boolean', default: false })
   isRecurring: boolean;
 
+  @Column({ type: 'boolean', default: true })
+  isActive: boolean;
+
   @CreateDateColumn({ type: 'timestamptz' })
   createAt: Date;
 

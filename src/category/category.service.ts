@@ -10,6 +10,7 @@ import {
   createPaginationResult,
   PaginationResult,
 } from 'src/common/pagination/pagination.util';
+import { endOfMonth, startOfMonth } from 'src/common/utils/timezone';
 @Injectable()
 export class CategoryService {
   constructor(
@@ -71,21 +72,9 @@ export class CategoryService {
   }
 
   async getTopExpenses(date: string, userId: string): Promise<Category[]> {
-    const firstDay = new Date(
-      new Date(date).getFullYear(),
-      new Date(date).getMonth(),
-      1,
-    );
+    const firstDay = startOfMonth(date);
 
-    const lastDay = new Date(
-      new Date(date).getFullYear(),
-      new Date(date).getMonth() + 1,
-      0,
-      23,
-      59,
-      59,
-      999,
-    );
+    const lastDay = endOfMonth(date);
 
     const query = this.categoryRepository
       .createQueryBuilder('category')

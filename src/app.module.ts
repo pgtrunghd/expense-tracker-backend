@@ -10,6 +10,7 @@ import { ExpenseModule } from './expense/expense.module';
 import { IncomeModule } from './income/income.module';
 import { UserModule } from './user/user.module';
 import { BudgetModule } from './budget/budget.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { BudgetModule } from './budget/budget.module';
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: true,
     }),
+    ScheduleModule.forRoot(),
     UserModule,
     AuthModule,
     ExpenseModule,

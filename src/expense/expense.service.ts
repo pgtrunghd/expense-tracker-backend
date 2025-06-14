@@ -10,6 +10,13 @@ import { PaginationDto } from 'src/common/pagination/pagination.dto';
 import { Income } from 'src/income/entities/income.entity';
 import { User } from 'src/user/entities/user.entity';
 import { createPaginationResult } from 'src/common/pagination/pagination.util';
+import {
+  endOfDay,
+  endOfMonth,
+  startOfDay,
+  startOfMonth,
+  timeZone,
+} from 'src/common/utils/timezone';
 
 @Injectable()
 export class ExpenseService {
@@ -95,9 +102,10 @@ export class ExpenseService {
     return this.expenseRepository.delete(id);
   }
 
-  async getExpensesByDay(date: Date): Promise<Expense[]> {
-    const startDay = new Date(date.setHours(0, 0, 0, 0));
-    const endDay = new Date(date.setHours(23, 59, 59, 999));
+  async getExpensesByDay(date: string): Promise<Expense[]> {
+    const startDay = startOfDay(date);
+    const endDay = endOfDay(date);
+
     const query = this.expenseRepository
       .createQueryBuilder('expense')
       .leftJoinAndSelect('expense.category', 'category')
@@ -111,21 +119,9 @@ export class ExpenseService {
   }
 
   async getExpensesByMonth(date: string, userId: string): Promise<Expense[]> {
-    const firstDay = new Date(
-      new Date(date).getFullYear(),
-      new Date(date).getMonth(),
-      1,
-    );
+    const firstDay = startOfMonth(date);
 
-    const lastDay = new Date(
-      new Date(date).getFullYear(),
-      new Date(date).getMonth() + 1,
-      0,
-      23,
-      59,
-      59,
-      999,
-    );
+    const lastDay = endOfMonth(date);
 
     const query = this.expenseRepository
       .createQueryBuilder('expense')
@@ -155,29 +151,9 @@ export class ExpenseService {
   ): Promise<any> {
     const { page, take, skip } = pagination;
 
-    // const firstDay = new Date(
-    //   new Date(date).getFullYear(),
-    //   new Date(date).getMonth(),
-    //   1,
-    // );
+    const firstDay = startOfMonth(date);
 
-    // const lastDay = new Date(
-    //   new Date(date).getFullYear(),
-    //   new Date(date).getMonth() + 1,
-    //   0,
-    //   23,
-    //   59,
-    //   59,
-    //   999,
-    // );
-
-    const startOfMonth = DateTime.fromISO(date, { zone: 'Asia/Ho_Chi_Minh' })
-      .startOf('month')
-      .toJSDate();
-
-    const endOfMonth = DateTime.fromISO(date, { zone: 'Asia/Ho_Chi_Minh' })
-      .endOf('month')
-      .toJSDate();
+    const lastDay = endOfMonth(date);
 
     const rawQuery = `
     (
@@ -221,15 +197,15 @@ export class ExpenseService {
 
     const data = await this.dataSource.query(rawQuery, [
       userId,
-      startOfMonth,
-      endOfMonth,
+      firstDay,
+      lastDay,
       take,
       skip,
     ]);
     const totalResult = await this.dataSource.query(rawTotalQuery, [
       userId,
-      startOfMonth,
-      endOfMonth,
+      firstDay,
+      lastDay,
     ]);
     const total = parseInt(totalResult[0].count, 10);
 

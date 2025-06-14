@@ -53,9 +53,7 @@ export class ExpenseController {
   @UseGuards(JwtAuthGuard)
   @Get('by-day')
   async getExpensesByDay(@Query('date') date: string) {
-    const parseDate = new Date(date);
-
-    return this.expenseService.getExpensesByDay(parseDate);
+    return this.expenseService.getExpensesByDay(date);
   }
 
   @UseGuards(JwtAuthGuard)

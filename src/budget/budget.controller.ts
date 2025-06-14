@@ -31,8 +31,12 @@ export class BudgetController {
 
   @UseGuards(JwtAuthGuard)
   @Get()
-  findAll(@Query() pagination: PaginationDto, @User('userId') userId: string) {
-    return this.budgetService.findAll(pagination, userId);
+  findAll(
+    @Query() pagination: PaginationDto,
+    @User('userId') userId: string,
+    @Query('date') date: string,
+  ) {
+    return this.budgetService.findAll(pagination, userId, date);
   }
 
   // @UseGuards(JwtAuthGuard)
